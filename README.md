@@ -19,4 +19,4 @@ iii. Gateway: 0.0.0.0
 ![Ethernet_IPv4](https://github.com/baha2r/robotiq_3f_gripper/assets/75396051/2caa843d-18e1-429f-a00c-29b129244c32)
 
 # Test
-Run the main.py
+Run the test.py
