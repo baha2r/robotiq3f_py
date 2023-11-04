@@ -1,5 +1,5 @@
-# robotiq_3f_gripper
-Control robotiq 3f gripper using modbus client and python
+# robotiq3f_py
+Control robotiq 3f gripper using python and modbus client
 
 # Control
 Using GripperController class, you can control the gripper with different modes, different speeds or different force applied. 
