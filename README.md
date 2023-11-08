@@ -1,4 +1,3 @@
-```markdown
 # robotiq3f_py
 
 Control the Robotiq 3F gripper using Python and a Modbus TCP client. This library provides a straightforward interface to integrate the Robotiq 3F gripper into your automation projects, allowing for various modes of operation, speed adjustments, and individual finger control.
