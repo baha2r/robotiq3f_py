@@ -20,6 +20,8 @@ pip install pyModbusTCP
 
 To establish a connection with the gripper, configure your Ethernet connection with the following IPv4 settings:
 
+![Ethernet Setup](https://github.com/baha2r/robotiq_3f_gripper/assets/75396051/2caa843d-18e1-429f-a00c-29b129244c32)
+
 - Address: 192.168.1.2
 - Netmask: 255.255.255.0
 - Gateway: 0.0.0.0
@@ -81,5 +83,3 @@ Contributions to improve `robotiq3f_py` are welcome! Please read our [contributi
 ## Support
 
 For additional support or questions, please open an [issue](https://github.com/baha2r/robotiq3f_py/issues) in the repository.
-
-![Ethernet Setup](https://github.com/baha2r/robotiq_3f_gripper/assets/75396051/2caa843d-18e1-429f-a00c-29b129244c32)
