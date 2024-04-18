@@ -10,7 +10,7 @@ def main():
     gripper.activate()
 
     # Set up the initial parameters for the gripper command
-    target_position = [15, 20, 11]  # Desired finger positions
+    target_position = [10, 20, 11]  # Desired finger positions
     speed = [250, 205, 250]  # Speed of the movement
     force = [250, 250, 250]  # Force applied by the fingers
 
@@ -30,27 +30,29 @@ def main():
     while ([gripper.FingerA_Position, gripper.FingerB_Position, gripper.FingerC_Position] != target_position):
         time.sleep(0.1)
 
-    # Output the current finger positions
-    print(f"FingerA_Position: {gripper.FingerA_Position} FingerB_Position: {gripper.FingerB_Position} FingerC_Position: {gripper.FingerC_Position}")
+    # # Output the current finger positions
+    # print(f"FingerA_Position: {gripper.FingerA_Position} FingerB_Position: {gripper.FingerB_Position} FingerC_Position: {gripper.FingerC_Position}")
 
-    # Update the command parameters for the next movement
-    individual_control = False
-    target_position = [10, 20, 110]  # New target positions
-    mode = "Pinch"  # Gripper mode remains the same
+    # # Update the command parameters for the next movement
+    individual_control = True
+    speed = [25, 20, 25]  # Speed of the movement
+    target_position = [200, 20, 110]  # New target positions
+    mode = "Basic"  
 
-    # Adjust target_position if individual control is not enabled
-    target_position = [target_position[0]] * 3 if not individual_control else target_position
-
+    # # Adjust target_position if individual control is not enabled
+    # target_position = [target_position[0]] * 3 if not individual_control else target_position
+    time.sleep(5)
     # Send the new command to the gripper
     gripper.command_gripper(rPRA=target_position, rSP=speed, rFR=force, rMOD=mode, rICF=individual_control)
 
     # Wait for the gripper to reach the new target positions
     while ([gripper.FingerA_Position, gripper.FingerB_Position, gripper.FingerC_Position] != target_position):
         time.sleep(0.1)
+        print([gripper.FingerA_Position, gripper.FingerB_Position, gripper.FingerC_Position])
 
-    # Print the updated positions of the fingers
-    print(f"FingerA_Position: {gripper.FingerA_Position} FingerB_Position: {gripper.FingerB_Position} FingerC_Position: {gripper.FingerC_Position}")
-
+    # # Print the updated positions of the fingers
+    # print(f"FingerA_Position: {gripper.FingerA_Position} FingerB_Position: {gripper.FingerB_Position} FingerC_Position: {gripper.FingerC_Position}")
+    
     # Close the connection when finished
     gripper.close()
 

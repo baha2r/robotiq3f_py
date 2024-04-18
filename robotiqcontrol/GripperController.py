@@ -22,9 +22,7 @@ class GripperController:
     def _update_status(self):
         """Update and store the gripper status from Modbus server."""
         readData = self.client.read_input_registers(0,8)
-        if readData is None:
-            print("Unable to read data from the server.")
-        else:
+        if readData:
             self.gSTA, self.gIMC, self.gGTO, self.gMOD, self.gACT, self.gDTS, self.gDTC, self.gDTB, self.gDTA = self.stat(self.add_leading_zeros(bin(readData[0])))
             self.FaultStatus, self.FingerA_PositionReqEcho = self.Byte_status(self.add_leading_zeros(bin(readData[1])))
             self.FingerA_Position, self.FingerA_Current = self.Byte_status(self.add_leading_zeros(bin(readData[2])))
@@ -33,6 +31,8 @@ class GripperController:
             self.FingerC_Position, self.FingerC_Current = self.Byte_status(self.add_leading_zeros(bin(readData[5])))
             self.Scissor_PositionReqEcho, self.Scissor_Position = self.Byte_status(self.add_leading_zeros(bin(readData[6])))
             self.Scissor_Current, RES = self.Byte_status(self.add_leading_zeros(bin(readData[7])))
+        else:
+            print("Error reading data in update_status.")
         
     @staticmethod
     def add_leading_zeros(bin_num, total_length=16):
@@ -69,13 +69,19 @@ class GripperController:
     
     def activate(self):
         """Activate the gripper."""
-        response = self.client.write_multiple_registers(0, [self._action_req_variable(rACT=1), 0, 0])
+        # response = self.client.write_multiple_registers(0, [self._action_req_variable(rACT=1), 0, 0])
+        self.client.write_multiple_registers(
+                0,
+                [self._action_req_variable(rACT=1, rGTO=1, rMOD=0, rICF=0),
+                self._position_req_variable(0),
+                self._write_req_variable(0, 0)]
+            )
         print("Gripper activate")
         time.sleep(1)
 
-    def command_gripper(self, rPRA=50, rSP=255, rFR=255, rMOD="Basic", rICF=False):
+    def command_gripper(self, rPRA=[1, 1, 1], rSP=[250, 250, 250], rFR=[250, 250, 250], rMOD="Basic", rICF=False):
         """Send a command to the gripper."""
-        self.status()
+        # self.status()
         modes = {"Basic": 0, "Pinch": 1, "Wide": 2, "Scissor": 3}
         rMOD = modes[rMOD]
         if rICF:
@@ -105,14 +111,17 @@ class GripperController:
         
     def status(self):
         readData = self.client.read_input_registers(0,8)
-        self.gSTA, self.gIMC, self.gGTO, self.gMOD, self.gACT, self.gDTS, self.gDTC, self.gDTB, self.gDTA = self.stat(self.add_leading_zeros(bin(readData[0])))
-        self.FaultStatus, self.FingerA_PositionReqEcho = self.Byte_status(self.add_leading_zeros(bin(readData[1])))
-        self.FingerA_Position, self.FingerA_Current = self.Byte_status(self.add_leading_zeros(bin(readData[2])))
-        self.FingerB_PositionReqEcho, self.FingerB_Position = self.Byte_status(self.add_leading_zeros(bin(readData[3])))
-        self.FingerB_Current, self.FingerC_PositionReqEcho = self.Byte_status(self.add_leading_zeros(bin(readData[4])))
-        self.FingerC_Position, self.FingerC_Current = self.Byte_status(self.add_leading_zeros(bin(readData[5])))
-        self.Scissor_PositionReqEcho, self.Scissor_Position = self.Byte_status(self.add_leading_zeros(bin(readData[6])))
-        self.Scissor_Current, RES = self.Byte_status(self.add_leading_zeros(bin(readData[7])))
+        if readData:
+            self.gSTA, self.gIMC, self.gGTO, self.gMOD, self.gACT, self.gDTS, self.gDTC, self.gDTB, self.gDTA = self.stat(self.add_leading_zeros(bin(readData[0])))
+            self.FaultStatus, self.FingerA_PositionReqEcho = self.Byte_status(self.add_leading_zeros(bin(readData[1])))
+            self.FingerA_Position, self.FingerA_Current = self.Byte_status(self.add_leading_zeros(bin(readData[2])))
+            self.FingerB_PositionReqEcho, self.FingerB_Position = self.Byte_status(self.add_leading_zeros(bin(readData[3])))
+            self.FingerB_Current, self.FingerC_PositionReqEcho = self.Byte_status(self.add_leading_zeros(bin(readData[4])))
+            self.FingerC_Position, self.FingerC_Current = self.Byte_status(self.add_leading_zeros(bin(readData[5])))
+            self.Scissor_PositionReqEcho, self.Scissor_Position = self.Byte_status(self.add_leading_zeros(bin(readData[6])))
+            self.Scissor_Current, RES = self.Byte_status(self.add_leading_zeros(bin(readData[7])))
+        else:
+            print("Error reading data in status.")
 
     def _action_req_variable(self, rARD: int = 0, rATR: int = 0, rGTO: int = 0, rACT: int = 0, rMOD:int = 0, rICS:int = 0, rICF:int = 0 ) -> str:
         """Build action request variable."""
@@ -164,14 +173,18 @@ def main():
     # Create and activate gripper controller
     gripper = GripperController("192.168.1.11")
     gripper.activate()
-    final_position = 20
+    individual_control = False
+    target_position = [10, 20, 11]  # Desired finger positions
+    speed = [250, 205, 250]  # Speed of the movement
+    force = [250, 250, 250]  # Force applied by the fingers
+    target_position = [target_position[0]] * 3 if not individual_control else target_position
     # Send command to gripper and wait for it to reach final position
-    gripper.command_gripper(position=final_position, speed=10, force=255)
-    while (gripper.FingerA_Position != final_position):
+    gripper.command_gripper(rPRA=target_position, rSP=speed, rFR=force, rICF=individual_control)
+    while ([gripper.FingerA_Position, gripper.FingerB_Position, gripper.FingerC_Position] != target_position):
         print(f"FingerA_Position: {gripper.FingerA_Position}")
     print(f"FingerA_Position: {gripper.FingerA_Position}")
     # Close the controller when done
-    gripper.close()
+    # gripper.close()
 
 if __name__ == "__main__":
     main()
