@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Beigomi"
+  given-names: "Bahador"
+  orcid: "https://orcid.org/0000-0001-5646-2771"
+title: "robotiq3f_py"
+version: 2.0.0
+doi: 10.5281/zenodo.1234
+date-released: 2023-05-27
+url: "https://github.com/baha2r/robotiq3f_py"
